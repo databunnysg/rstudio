@@ -56,9 +56,10 @@ TEST_CASE("SessionFind")
       std::string line(kLine);
       size_t replaceMatchOff;
 
-      Replacer replacer(true);
-      replacer.replaceLiteral(matchOn, matchOff,
-         kReplaceString, &line, &replaceMatchOff);
+      Replacer replacer("", true);
+      //replacer.replaceLiteral(matchOn, matchOff,
+      //   kReplaceString, &line, &replaceMatchOff);
+      replacer.replaceRegex(matchOn, matchOff, "great", kReplaceString, &line, &replaceMatchOff);
       CHECK(line.compare("RStudio is awesome") == 0);
       CHECK(replaceMatchOff == 18);
    }
@@ -68,7 +69,7 @@ TEST_CASE("SessionFind")
       std::string line(kRegexLine);
       size_t replaceMatchOff;
 
-      Replacer replacer(false);
+      Replacer replacer("", false);
       replacer.replaceRegex(caseMatchOn, caseMatchOff,
          kFindRegex, kReplaceString, &line, &replaceMatchOff);
       CHECK(line.compare("aba OOOkkk okab AAOO awesome aa abab") == 0);
@@ -80,7 +81,7 @@ TEST_CASE("SessionFind")
       std::string line(kRegexLine);
       size_t replaceMatchOff;
 
-      Replacer replacer(true);
+      Replacer replacer("", true);
       replacer.replaceRegex(rMatchOn, rMatchOff, kFindRegex, kReplaceRegex, &line,
          &replaceMatchOff);
       CHECK(line.compare("aba OkOk okab AAOO aaabbb aa abab") == 0);
@@ -99,7 +100,7 @@ TEST_CASE("SessionFind")
       std::string line(kRegexLine);
       size_t replaceMatchOff;
 
-      Replacer replacer(false);
+      Replacer replacer("", false);
       replacer.replaceRegex(caseMatchOn, caseMatchOff, kFindRegex, kReplaceRegex, &line,
          &replaceMatchOff);
       CHECK(line.compare("aba OOOkkk okab AAOO abab aa abab") == 0);
@@ -111,7 +112,7 @@ TEST_CASE("SessionFind")
       std::string line(kLine);
       size_t replaceMatchOff = 99;
 
-      Replacer replacer(true);
+      Replacer replacer("", true);
       Error error = replacer.replaceRegex(rMatchOn, rMatchOff, kFindRegex, kReplaceRegex,
          &line, &replaceMatchOff); 
       CHECK(line.compare(kLine) == 0);
@@ -125,20 +126,21 @@ TEST_CASE("SessionFind")
       size_t on = 10;
       size_t off = 15;
 
-      Replacer replacer(true);
-      replacer.replaceLiteral(on, off, replacePattern, &line, &replaceMatchOff);
+      Replacer replacer("", true);
+      //replacer.replaceLiteral(on, off, replacePattern, &line, &replaceMatchOff);
+      replacer.replaceRegex(on, off, "hello", replacePattern, &line, &replaceMatchOff);
       CHECK(line.compare("hellohellohello world") == 0);
       CHECK(replaceMatchOff == 21);
 
       on = 5;
       off = 10;
-      replacer.replaceLiteral(on, off, replacePattern, &line, &replaceMatchOff);
+      replacer.replaceRegex(on, off, "hello", replacePattern, &line, &replaceMatchOff);
       CHECK(line.compare("hellohello worldhello world") == 0);
       CHECK(replaceMatchOff == 16);
 
       on = 0;
       off = 5;
-      replacer.replaceLiteral(on, off, replacePattern, &line, &replaceMatchOff);
+      replacer.replaceRegex(on, off, "hello", replacePattern, &line, &replaceMatchOff);
       CHECK(line.compare("hello worldhello worldhello world") == 0);
       CHECK(replaceMatchOff == 11);
    }
@@ -152,7 +154,7 @@ TEST_CASE("SessionFind")
       size_t on = 0;
       size_t off = 16;
 
-      Replacer replacer(false);
+      Replacer replacer("", false);
       replacer.replaceRegex(on, off, findPattern, replacePattern, &line, &replaceMatchOff);
       CHECK(line.compare("hello world") == 0);
       CHECK(replaceMatchOff == 11);
@@ -211,6 +213,23 @@ TEST_CASE("SessionFind")
       boost::cmatch match;
       CHECK(regex_utils::search(kGitGrepPattern.c_str(), match, regex));
       CHECK(match[2].str().compare("1") == 0);
+   }
+
+   SECTION("Special characters")
+   {
+      std::string line("Apie atsitiktinę ir sistemingąją imties (pa)klaidas rašoma [@Cekanavicius2006, p.14-15, sk. 2.3]. ");
+      size_t replaceMatchOff;
+
+      size_t matchOn = 61;
+      size_t matchOff = 77;
+
+      const std::string replaceRegex("Cekanavicius_stat_I");
+      const std::string findRegex("Cekanavicius2006");
+      Replacer replacer("", false);
+      replacer.replaceRegex(matchOn, matchOff, findRegex, replaceRegex, &line,
+         &replaceMatchOff);
+      CHECK(line.compare("Apie atsitiktinę ir sistemingąją imties (pa)klaidas rašoma [@Cekanavicius_stat_I, p.14-15, sk. 2.3]. ") == 0);
+      CHECK(replaceMatchOff == 76);
    }
 }
 
