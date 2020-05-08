@@ -57,9 +57,8 @@ TEST_CASE("SessionFind")
       size_t replaceMatchOff;
 
       Replacer replacer("", true);
-      //replacer.replaceLiteral(matchOn, matchOff,
-      //   kReplaceString, &line, &replaceMatchOff);
-      replacer.replaceRegex(matchOn, matchOff, "great", kReplaceString, &line, &replaceMatchOff);
+      replacer.replaceLiteral(matchOn, matchOff,
+         kReplaceString, &line, &replaceMatchOff);
       CHECK(line.compare("RStudio is awesome") == 0);
       CHECK(replaceMatchOff == 18);
    }
@@ -107,6 +106,39 @@ TEST_CASE("SessionFind")
       CHECK(replaceMatchOff == 25);
    }
 
+   SECTION("Replace ASCII encoding")
+   {
+      std::string line("äSCII ìs ƒun");
+      std::string find("ƒun");
+      std::string replace("Ök");
+
+      size_t matchOn = 11;
+      size_t matchOff = 15;
+      size_t replaceMatchOff;
+
+      Replacer replacer("ASCII", false);
+      replacer.replaceRegex(matchOn, matchOff, find, replace, &line, &replaceMatchOff);
+      CHECK(line.compare("äSCII ìs Ök") == 0);
+      CHECK(replaceMatchOff == 14);
+   }
+
+   SECTION("Replace BIG5 encoding")
+   {
+      std::string line("´sπƒ∆GƒßµM");
+      std::string find("∆G");
+      std::string replace("…@");
+
+      size_t matchOn = 7;
+      size_t matchOff = 11;
+      size_t replaceMatchOff;
+
+      Replacer replacer("BIG5", false);
+      replacer.replaceRegex(matchOn, matchOff, find, replace, &line, &replaceMatchOff);
+      CHECK(line.compare("´sπƒ…@ƒßµM") == 0);
+      CHECK(replaceMatchOff == 11);
+
+   }
+
    SECTION("Attempt replace without valid match")
    {
       std::string line(kLine);
@@ -127,8 +159,7 @@ TEST_CASE("SessionFind")
       size_t off = 15;
 
       Replacer replacer("", true);
-      //replacer.replaceLiteral(on, off, replacePattern, &line, &replaceMatchOff);
-      replacer.replaceRegex(on, off, "hello", replacePattern, &line, &replaceMatchOff);
+      replacer.replaceLiteral(on, off, replacePattern, &line, &replaceMatchOff);
       CHECK(line.compare("hellohellohello world") == 0);
       CHECK(replaceMatchOff == 21);
 
@@ -215,22 +246,6 @@ TEST_CASE("SessionFind")
       CHECK(match[2].str().compare("1") == 0);
    }
 
-   SECTION("Special characters")
-   {
-      std::string line("Apie atsitiktinę ir sistemingąją imties (pa)klaidas rašoma [@Cekanavicius2006, p.14-15, sk. 2.3]. ");
-      size_t replaceMatchOff;
-
-      size_t matchOn = 61;
-      size_t matchOff = 77;
-
-      const std::string replaceRegex("Cekanavicius_stat_I");
-      const std::string findRegex("Cekanavicius2006");
-      Replacer replacer("", false);
-      replacer.replaceRegex(matchOn, matchOff, findRegex, replaceRegex, &line,
-         &replaceMatchOff);
-      CHECK(line.compare("Apie atsitiktinę ir sistemingąją imties (pa)klaidas rašoma [@Cekanavicius_stat_I, p.14-15, sk. 2.3]. ") == 0);
-      CHECK(replaceMatchOff == 76);
-   }
 }
 
 } // end namespace tests

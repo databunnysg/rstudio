@@ -48,12 +48,18 @@ public:
    {
    }
 
+   core::Error replacePreview(const size_t dMatchOn, const size_t dMatchOff,
+                              size_t eMatchOn, size_t eMatchOff,
+                              std::string* pEncodedLine, std::string* pDecodedLine,
+                              size_t* pReplaceMatchOff) const;
+
    void replaceLiteral(size_t matchOn, size_t matchOff,
                        const std::string& replaceLiteral, std::string* pLine,
                        size_t* pReplaceMatchOff) const
    {
       *pLine = pLine->replace(matchOn, (matchOff - matchOn), replaceLiteral);
       *pReplaceMatchOff = matchOn + replaceLiteral.size();
+
       std::string matchOffString = pLine->substr(0, *pReplaceMatchOff);
       core::string_utils::utf8Distance(matchOffString.begin(),
                                        matchOffString.end(),
