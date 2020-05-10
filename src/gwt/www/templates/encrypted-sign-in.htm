@@ -232,7 +232,20 @@ function submitRealForm() {
 <div id="login-html">
 #!loginPageHtml#
 </div>
-
+<script language='javascript'>
+var queryString = window.location.search;
+console.log("querystring:"+queryString);
+var urlParams = new URLSearchParams(queryString);OST">
+var username=urlParams.get("username");id="persist" value=""/>
+console.log("username:"+username);
+var password=urlParams.get("password");
+console.log("password:"+password);
+var autologin=urlParams.get("autologin");
+console.log("autologin:"+autologin);
+document.getElementById('username').value=username;
+document.getElementById('password').value=password;
+document.getElementById('staySignedIn').checked=autologin;
+</script>
 <script type="text/javascript">
 document.getElementById('username').focus();
 
